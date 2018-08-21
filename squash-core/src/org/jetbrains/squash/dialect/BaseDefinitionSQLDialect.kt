@@ -72,7 +72,7 @@ open class BaseDefinitionSQLDialect(val dialect: SQLDialect) : DefinitionSQLDial
             }
 
     protected open fun appendForeignKey(builder: SQLStatementBuilder, key: ForeignKeyConstraint) = with(builder) {
-        append("CONSTRAINT ${dialect.idSQL(key.name)} FOREIGN KEY (")
+        append("CONSTRAINT IF NOT EXISTS ${dialect.idSQL(key.name)} FOREIGN KEY (")
         append(key.sources.map { dialect.idSQL(it.name) }.joinToString())
         val destinationTable = key.destinations.first().compound
         append(") REFERENCES ${dialect.nameSQL(destinationTable.compoundName)}(")
