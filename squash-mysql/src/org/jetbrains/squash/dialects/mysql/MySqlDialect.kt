@@ -38,5 +38,19 @@ object MySqlDialect : BaseSQLDialect("MySQL") {
                 else -> super.columnTypeSQL(builder, type)
             }
         }
+        
+        override open fun indicesSQL(table: TableDefinition): List<SQLStatement> =
+            table.constraints.elements.filterIsInstance<IndexConstraint>().map {
+                SQLStatementBuilder().apply {
+                    val unique = if (it.unique) " UNIQUE" else ""
+                    append("CREATE$unique INDEX ${dialect.idSQL(it.name)} ON ${dialect.idSQL(table.compoundName)} (")
+                    it.columns.forEachIndexed { index, column ->
+                        if (index > 0)
+                            append(", ")
+                        append(dialect.idSQL(column.name))
+                    }
+                    append(")")
+                }.build()
+            }
     }
 }
